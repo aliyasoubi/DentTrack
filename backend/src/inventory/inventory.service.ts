@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Inventory } from './schemas/inventory.schema';
+import { Inventory, InventoryModel } from './schemas/inventory.schema';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 
 @Injectable()
 export class InventoryService {
   constructor(
-    @InjectModel(Inventory.name) private inventoryModel: Model<Inventory>,
+    @InjectModel(Inventory.name) private inventoryModel: InventoryModel,
   ) {}
 
   async create(createInventoryDto: CreateInventoryDto): Promise<Inventory> {
@@ -15,8 +15,8 @@ export class InventoryService {
     return createdInventory.save();
   }
 
-  async findAll(): Promise<Inventory[]> {
-    return this.inventoryModel.find().exec();
+  async findAll(filters: any = {}): Promise<Inventory[]> {
+    return this.inventoryModel.find(filters).exec();
   }
 
   async findOne(id: string): Promise<Inventory> {
@@ -44,14 +44,14 @@ export class InventoryService {
     }
   }
 
-  async findLowStock(threshold: number = 10): Promise<Inventory[]> {
+  async findLowStock(threshold?: number): Promise<Inventory[]> {
     return this.inventoryModel.findLowStock(threshold);
   }
 
   async updateQuantity(id: string, quantity: number): Promise<Inventory> {
     const inventory = await this.findOne(id);
     inventory.quantity = quantity;
-    return inventory.save();
+    return this.inventoryModel.findByIdAndUpdate(id, { quantity }, { new: true }).exec();
   }
 
   async findExpiringItems(daysThreshold: number = 30): Promise<Inventory[]> {

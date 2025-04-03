@@ -1,7 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Model } from 'mongoose';
 
 export type InventoryDocument = Inventory & Document;
+
+// Define interface for static methods
+export interface InventoryModel extends Model<Inventory> {
+  findLowStock(threshold?: number): Promise<Inventory[]>;
+}
 
 @Schema({ timestamps: true })
 export class Inventory {

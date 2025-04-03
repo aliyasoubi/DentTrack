@@ -1,35 +1,29 @@
-# DentTrack - Dental Clinic Management System
+# 🦷 DentTrack - Dental Clinic Management System
 
-DentTrack is a comprehensive dental clinic management system with a focus on inventory management. The system helps dental clinics track various types of dental materials and supplies, including implants, abutments, composites, and laminates.
+![DentTrack Logo](https://via.placeholder.com/150x150.png?text=DentTrack)
 
-## Features
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://swagger.io/)
 
-- Unified inventory management system
-- Category-based product tracking
-- Expiry date monitoring
-- Low stock alerts
-- Detailed filtering and search capabilities
-- RESTful API with proper validation
+## 📋 Overview
 
-## Tech Stack
+DentTrack is a comprehensive dental clinic management system designed to streamline inventory management, patient records, and administrative tasks for dental practices. This repository contains the backend API built with NestJS, MongoDB, and TypeScript.
 
-### Backend
-- Node.js
-- Express.js
-- MongoDB with Mongoose
-- Express Validator
-- JWT for authentication (to be implemented)
+## ✨ Features
 
-### Frontend (Coming Soon)
-- React
-- Material-UI
-- React Router
-- Formik & Yup
-- Axios
+- **Inventory Management**: Track dental supplies with detailed categorization
+- **Stock Monitoring**: Alerts for low stock and expiring items
+- **Supplier Management**: Track suppliers and reorder points
+- **RESTful API**: Well-documented endpoints with Swagger
+- **Type Safety**: Built with TypeScript for robust development
+- **Modular Architecture**: Easy to extend with new features
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js (v14 or higher)
 - MongoDB (v4.4 or higher)
 - npm or yarn
@@ -37,57 +31,123 @@ DentTrack is a comprehensive dental clinic management system with a focus on inv
 ### Installation
 
 1. Clone the repository:
+   ```bash
+   git clone https://github.com/aliyasoubi/denttrack.git
+   cd denttrack
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit the `.env` file with your configuration.
+
+4. Start the development server:
+   ```bash
+   npm run start:dev
+   ```
+
+5. Access the API documentation:
+   ```
+   http://localhost:3000/api
+   ```
+
+## 📚 API Documentation
+
+### Inventory Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/inventory` | Get all inventory items with optional filtering |
+| `GET` | `/inventory/:id` | Get a specific inventory item |
+| `POST` | `/inventory` | Create a new inventory item |
+| `PATCH` | `/inventory/:id` | Update an inventory item |
+| `DELETE` | `/inventory/:id` | Delete an inventory item |
+| `GET` | `/inventory/low-stock` | Get items with low stock |
+| `GET` | `/inventory/expiring` | Get items expiring soon |
+| `PATCH` | `/inventory/:id/quantity` | Update item quantity |
+
+### Query Parameters
+
+The `/inventory` endpoint supports the following query parameters:
+
+- `category`: Filter by category
+- `subCategory`: Filter by subcategory
+- `brand`: Filter by brand
+- `supplier`: Filter by supplier
+- `minQuantity`: Filter by minimum quantity
+- `maxQuantity`: Filter by maximum quantity
+- `expiringBefore`: Filter by expiry date before
+
+## 🏗️ Project Structure
+
+```
+denttrack/
+├── backend/
+│   ├── src/
+│   │   ├── inventory/
+│   │   │   ├── dto/
+│   │   │   ├── schemas/
+│   │   │   ├── inventory.controller.ts
+│   │   │   ├── inventory.service.ts
+│   │   │   └── inventory.module.ts
+│   │   ├── app.module.ts
+│   │   └── main.ts
+│   ├── test/
+│   ├── package.json
+│   └── tsconfig.json
+├── .env.example
+├── .gitignore
+└── README.md
+```
+
+## 📊 Inventory Categories
+
+DentTrack organizes dental supplies into the following categories:
+
+- **Implant & Abutment Components**
+- **Consumables & Disposables**
+- **Impression & Matrix Materials**
+- **Local Anesthetics & Pharmaceuticals**
+- **Restorative Materials & Bonding Agents**
+- **Endodontic & Irrigation Supplies**
+- **Etching, Polishing & Bleaching Agents**
+- **Surgical & Sterilization Supplies**
+- **Dental Instruments & Accessories**
+- **Cleaning, Disinfection & Maintenance Supplies**
+- **Office & Miscellaneous Supplies**
+
+## 🔧 Development
+
+### Running Tests
+
 ```bash
-git clone https://github.com/yourusername/denttrack.git
-cd denttrack
+npm run test
 ```
 
-2. Install backend dependencies:
+### Building for Production
+
 ```bash
-cd backend
-npm install
+npm run build
 ```
 
-3. Create a .env file in the backend directory:
-```env
-PORT=5000
-MONGODB_URI=mongodb://localhost:27017/denttrack
-JWT_SECRET=your_jwt_secret_key_here
-NODE_ENV=development
-```
+### Starting Production Server
 
-4. Start the backend server:
 ```bash
-npm run dev
+npm run start:prod
 ```
 
-### API Endpoints
+## 📝 License
 
-#### Inventory Management
-- GET /api/v1/inventory - Get all inventory items (with filtering)
-- GET /api/v1/inventory/:id - Get single inventory item
-- POST /api/v1/inventory - Create new inventory item
-- PUT /api/v1/inventory/:id - Update inventory item
-- DELETE /api/v1/inventory/:id - Delete inventory item
-- GET /api/v1/inventory/low-stock - Get low stock items
-- GET /api/v1/inventory/expiring - Get items expiring within 30 days
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Query Parameters for Filtering
-- category: Filter by product category
-- brand: Filter by brand name
-- minQuantity: Minimum quantity threshold
-- maxQuantity: Maximum quantity threshold
-- expiryBefore: Items expiring before date
-- expiryAfter: Items expiring after date
-- sortBy: Field to sort by
-- sortOrder: asc or desc
-- page: Page number for pagination
-- limit: Items per page
+## 🙏 Acknowledgments
 
-## Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+- [NestJS](https://nestjs.com/) - Progressive Node.js framework
+- [Mongoose](https://mongoosejs.com/) - MongoDB object modeling
+- [Swagger](https://swagger.io/) - API documentation
