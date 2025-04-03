@@ -1,20 +1,27 @@
-import { IsEnum, IsString, IsNumber, IsDate, IsOptional, ValidateIf, IsObject, ValidateNested, Min } from 'class-validator';
+import { IsEnum, IsString, IsNumber, IsDate, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class SpecificParametersDto {
-  @IsString()
-  d: string;
-
-  @IsString()
-  g: string;
-
-  @IsString()
-  h: string;
-}
-
 export class CreateInventoryDto {
-  @IsEnum(['IMPLANT', 'ABUTMENT', 'COMPOSITE', 'LAMINATE'])
+  @IsString()
+  itemId: string;
+
+  @IsEnum([
+    'Implant & Abutment Components',
+    'Consumables & Disposables',
+    'Impression & Matrix Materials',
+    'Local Anesthetics & Pharmaceuticals',
+    'Restorative Materials & Bonding Agents',
+    'Endodontic & Irrigation Supplies',
+    'Etching, Polishing & Bleaching Agents',
+    'Surgical & Sterilization Supplies',
+    'Dental Instruments & Accessories',
+    'Cleaning, Disinfection & Maintenance Supplies',
+    'Office & Miscellaneous Supplies'
+  ])
   category: string;
+
+  @IsString()
+  subCategory: string;
 
   @IsString()
   brand: string;
@@ -22,27 +29,46 @@ export class CreateInventoryDto {
   @IsString()
   model: string;
 
+  @IsOptional()
+  @IsString()
+  description?: string;
+
   @IsNumber()
   @Min(0)
   quantity: number;
 
-  @IsDate()
-  @Type(() => Date)
-  productionDate: Date;
-
-  @IsDate()
-  @Type(() => Date)
-  expiryDate: Date;
+  @IsNumber()
+  @Min(0)
+  unitPrice: number;
 
   @IsOptional()
-  @ValidateIf(o => o.category === 'IMPLANT')
+  @IsDate()
+  @Type(() => Date)
+  productionDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  expiryDate?: Date;
+
+  @IsOptional()
   @IsString()
-  size?: string;
+  supplier?: string;
 
   @IsOptional()
-  @ValidateIf(o => o.category === 'ABUTMENT')
-  @IsObject()
-  @ValidateNested()
-  @Type(() => SpecificParametersDto)
-  specificParameters?: SpecificParametersDto;
+  @IsString()
+  storageLocation?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  reorderLevel?: number;
+
+  @IsOptional()
+  @IsString()
+  barcode?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 } 

@@ -4,88 +4,114 @@ import { Document } from 'mongoose';
 export type InventoryDocument = Inventory & Document;
 
 @Schema({ timestamps: true })
-export class SpecificParameters {
-  @Prop({ required: true })
-  d: string;
-
-  @Prop({ required: true })
-  g: string;
-
-  @Prop({ required: true })
-  h: string;
-}
-
-@Schema({ timestamps: true })
 export class Inventory {
+  @Prop({ required: true, unique: true })
+  itemId: string;
+
   @Prop({ 
     required: true, 
-    enum: ['IMPLANT', 'ABUTMENT', 'COMPOSITE', 'LAMINATE'],
-    index: true 
+    enum: [
+      'Implant & Abutment Components',
+      'Consumables & Disposables',
+      'Impression & Matrix Materials',
+      'Local Anesthetics & Pharmaceuticals',
+      'Restorative Materials & Bonding Agents',
+      'Endodontic & Irrigation Supplies',
+      'Etching, Polishing & Bleaching Agents',
+      'Surgical & Sterilization Supplies',
+      'Dental Instruments & Accessories',
+      'Cleaning, Disinfection & Maintenance Supplies',
+      'Office & Miscellaneous Supplies'
+    ] 
   })
   category: string;
 
-  @Prop({ required: true, trim: true, index: true })
+  @Prop({ required: true })
+  subCategory: string;
+
+  @Prop({ required: true })
   brand: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ required: true })
   model: string;
+
+  @Prop()
+  description: string;
 
   @Prop({ required: true, min: 0 })
   quantity: number;
 
-  @Prop({ required: true, type: Date })
-  productionDate: Date;
+  @Prop({ required: true, min: 0 })
+  unitPrice: number;
 
-  @Prop({ required: true, type: Date, index: true })
-  expiryDate: Date;
+  @Prop()
+  productionDate?: Date;
 
-  @Prop({ 
-    required: function() { return this.category === 'IMPLANT'; },
-    type: String 
-  })
-  size?: string;
+  @Prop()
+  expiryDate?: Date;
 
-  @Prop({ 
-    type: SpecificParameters,
-    required: function() { return this.category === 'ABUTMENT'; }
-  })
-  specificParameters?: SpecificParameters;
+  @Prop()
+  supplier?: string;
 
-  @Prop({ type: Date, default: Date.now })
-  createdAt: Date;
+  @Prop()
+  storageLocation?: string;
 
-  @Prop({ type: Date, default: Date.now })
-  updatedAt: Date;
+  @Prop({ min: 0 })
+  reorderLevel?: number;
+
+  @Prop()
+  barcode?: string;
+
+  @Prop()
+  notes?: string;
+
+  // Virtual property to check if stock is low
+  isLowStock(): boolean {
+    if (this.reorderLevel) {
+      return this.quantity <= this.reorderLevel;
+    }
+    return false;
+  }
+
+  // Virtual property to check if item is expiring soon
+  isExpiringSoon(daysThreshold: number = 30): boolean {
+    if (this.expiryDate) {
+      const today = new Date();
+      const thresholdDate = new Date();
+      thresholdDate.setDate(today.getDate() + daysThreshold);
+      return this.expiryDate <= thresholdDate && this.expiryDate >= today;
+    }
+    return false;
+  }
 }
 
 export const InventorySchema = SchemaFactory.createForClass(Inventory);
 
-// Indexes
+// Add index for faster queries
 InventorySchema.index({ category: 1 });
+InventorySchema.index({ subCategory: 1 });
 InventorySchema.index({ brand: 1 });
-InventorySchema.index({ expiryDate: 1 });
+InventorySchema.index({ itemId: 1 }, { unique: true });
+InventorySchema.index({ barcode: 1 });
 
-// Pre-save middleware
-InventorySchema.pre('save', function(next) {
-  if (this.expiryDate < this.productionDate) {
-    next(new Error('Expiry date cannot be before production date'));
+// Add static method to find low stock items
+InventorySchema.statics.findLowStock = function(threshold?: number) {
+  if (threshold) {
+    return this.find({ quantity: { $lte: threshold } });
   }
-  next();
-});
-
-// Instance methods
-InventorySchema.methods.isLowStock = function() {
-  return this.quantity <= 5;
+  return this.find({ 
+    $expr: { 
+      $lte: ['$quantity', '$reorderLevel'] 
+    } 
+  });
 };
 
-// Static methods
-InventorySchema.statics.findLowStock = function() {
-  return this.find({ quantity: { $lte: 5 } });
-};
-
-// Virtual for age (days until expiry)
+// Add virtual property for days until expiry
 InventorySchema.virtual('daysUntilExpiry').get(function() {
-  const today = new Date();
-  const diffTime = this.expiryDate.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (this.expiryDate) {
+    const today = new Date();
+    const diffTime = this.expiryDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }
+  return null;
 }); 

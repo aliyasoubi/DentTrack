@@ -29,8 +29,8 @@ export class InventoryController {
   @ApiQuery({ name: 'sortOrder', required: false })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
-  findAll(@Query() query: any) {
-    return this.inventoryService.findAll(query);
+  findAll() {
+    return this.inventoryService.findAll();
   }
 
   @Get('low-stock')
@@ -68,7 +68,7 @@ export class InventoryController {
   @ApiOperation({ summary: 'Delete an inventory item' })
   @ApiResponse({ status: 200, description: 'The item has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Item not found.' })
-  remove(@Param('id') id: string): Promise<Inventory> {
+  remove(@Param('id') id: string): Promise<void> {
     return this.inventoryService.remove(id);
   }
 
