@@ -58,7 +58,7 @@ export class Inventory {
   @Prop()
   supplier?: string;
 
-  @Prop()
+  @Prop({ required: true })
   storageLocation?: string;
 
   @Prop({ min: 0 })
@@ -92,12 +92,12 @@ export class Inventory {
 
 export const InventorySchema = SchemaFactory.createForClass(Inventory);
 
-// Add index for faster queries
-InventorySchema.index({ category: 1 });
-InventorySchema.index({ subCategory: 1 });
-InventorySchema.index({ brand: 1 });
+// Add indexes
 InventorySchema.index({ itemId: 1 }, { unique: true });
-InventorySchema.index({ barcode: 1 });
+InventorySchema.index({ category: 1 });
+InventorySchema.index({ brand: 1 });
+InventorySchema.index({ storageLocation: 1 });
+InventorySchema.index({ expiryDate: 1 });
 
 // Add static method to find low stock items
 InventorySchema.statics.findLowStock = function(threshold?: number) {

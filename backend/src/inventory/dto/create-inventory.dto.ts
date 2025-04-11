@@ -1,4 +1,4 @@
-import { IsEnum, IsString, IsNumber, IsDate, IsOptional, Min, IsNotEmpty, MaxLength, IsUUID, Matches, IsISO8601 } from 'class-validator';
+import { IsEnum, IsString, IsNumber, IsDate, IsOptional, Min, IsNotEmpty, MaxLength, IsUUID, Matches, IsISO8601, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { IsDateAfter } from '../../common/validators/date-order.validator';
 
@@ -52,17 +52,15 @@ export class CreateInventoryDto {
   unitPrice: number;
 
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @IsISO8601({}, { message: 'Production date must be a valid ISO 8601 date' })
-  productionDate?: Date;
+  @IsISO8601({ strict: false })
+  @Type(() => String)
+  productionDate?: string;
 
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  @IsISO8601({}, { message: 'Expiry date must be a valid ISO 8601 date' })
+  @IsISO8601({ strict: false })
+  @Type(() => String)
   @IsDateAfter('productionDate', { message: 'Expiry date must be after production date' })
-  expiryDate?: Date;
+  expiryDate?: string;
 
   @IsOptional()
   @IsString()

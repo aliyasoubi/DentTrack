@@ -1,6 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { Inventory, InventoryModel } from './schemas/inventory.schema';
 import { CreateInventoryDto } from './dto/create-inventory.dto';
 
@@ -11,16 +10,22 @@ export class InventoryService {
   ) {}
 
   async create(createInventoryDto: CreateInventoryDto): Promise<Inventory> {
-    const createdInventory = new this.inventoryModel(createInventoryDto);
-    return createdInventory.save();
+    try {
+      return await this.inventoryModel.create(createInventoryDto);
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new BadRequestException('Item ID already exists');
+      }
+      throw error;
+    }
   }
 
   async findAll(filters: any = {}): Promise<Inventory[]> {
-    return this.inventoryModel.find(filters).exec();
+    return this.inventoryModel.find(filters);
   }
 
   async findOne(id: string): Promise<Inventory> {
-    const inventory = await this.inventoryModel.findById(id).exec();
+    const inventory = await this.inventoryModel.findById(id);
     if (!inventory) {
       throw new NotFoundException(`Inventory with ID ${id} not found`);
     }
@@ -29,8 +34,7 @@ export class InventoryService {
 
   async update(id: string, updateInventoryDto: Partial<CreateInventoryDto>): Promise<Inventory> {
     const updatedInventory = await this.inventoryModel
-      .findByIdAndUpdate(id, updateInventoryDto, { new: true })
-      .exec();
+      .findByIdAndUpdate(id, updateInventoryDto, { new: true });
     if (!updatedInventory) {
       throw new NotFoundException(`Inventory with ID ${id} not found`);
     }
@@ -38,7 +42,7 @@ export class InventoryService {
   }
 
   async remove(id: string): Promise<void> {
-    const result = await this.inventoryModel.findByIdAndDelete(id).exec();
+    const result = await this.inventoryModel.findByIdAndDelete(id);
     if (!result) {
       throw new NotFoundException(`Inventory with ID ${id} not found`);
     }
@@ -49,9 +53,21 @@ export class InventoryService {
   }
 
   async updateQuantity(id: string, quantity: number): Promise<Inventory> {
-    const inventory = await this.findOne(id);
-    inventory.quantity = quantity;
-    return this.inventoryModel.findByIdAndUpdate(id, { quantity }, { new: true }).exec();
+    if (quantity < 0) {
+      throw new BadRequestException('Quantity cannot be negative');
+    }
+
+    const updatedInventory = await this.inventoryModel.findByIdAndUpdate(
+      id,
+      { quantity },
+      { new: true }
+    );
+    
+    if (!updatedInventory) {
+      throw new NotFoundException(`Inventory with ID ${id} not found`);
+    }
+    
+    return updatedInventory;
   }
 
   async findExpiringItems(daysThreshold: number = 30): Promise<Inventory[]> {
@@ -64,6 +80,6 @@ export class InventoryService {
         $gte: today,
         $lte: thresholdDate
       }
-    }).exec();
+    });
   }
 } 
